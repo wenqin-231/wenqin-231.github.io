@@ -54,9 +54,14 @@
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>通过上文分析，我相信你对夜间模式的实现已经有了初步的认识，但有两个方面需要理解清楚</p>
 <p>第一，夜间模式的具体效果不难实现，通过 <code>setDefaultNightMode</code> 就可以轻松实现。繁琐的工作在于切换夜间模式时，要把当前的 MainActivity 中的 UI 重新渲染。因此，我们需要把 MainActivity 中的 View 全部替换成 NightView，然后递归遍历。而对于特殊的 RecyclerView，则需要把它内部缓存的布局清空掉</p>
 <p>第二，所有 View 拿到的 <code>colorId</code> 值都是16进制的数字，它不会因为夜间模式的改变而改变，而如果拿到它们的 <code>colorRes</code>，就可以让 <code>ContextCompat # getColor</code> 根据夜间模式的状态去拿不同资源的色值</p>
+<p><em>夜间模式系列文章</em></p>
+<p><a href="http://wenqin231.com/2018/06/19/%E5%A4%9C%E9%97%B4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5%E6%8E%A2%E7%B4%A2%E2%80%94%E2%80%94%E5%BC%80%E7%AF%87/" target="_blank" rel="noopener">夜间模式实践探索——开篇</a></p>
+<p><a href="http://wenqin231.com/2018/08/08/%E5%A4%9C%E9%97%B4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5%E6%8E%A2%E7%B4%A2%E2%80%94%E2%80%94%E5%B1%95%E5%BC%80%E8%AE%B2%E8%AE%B2/" target="_blank" rel="noopener">夜间模式实践探索——展开讲讲</a></p>
+<p><a href="">夜间模式实践探索——源码分析</a></p>
+<p><a href="http://wenqin231.com/2018/08/09/%E5%A4%9C%E9%97%B4%E6%A8%A1%E5%BC%8F%E5%AE%9E%E8%B7%B5%E6%8E%A2%E7%B4%A2%E2%80%94%E2%80%94QA/" target="_blank" rel="noopener">夜间模式实践探索——QA</a></p>
 <p><em>参考资料</em></p>
 <p><a href="https://medium.com/androiddevelopers/appcompat-v23-2-daynight-d10f90c83e94" target="_blank" rel="noopener">AppCompat — DayNight</a></p>
 <p><a href="https://www.jianshu.com/p/3b55e84742e5" target="_blank" rel="noopener">知乎和简书的夜间模式实现套路</a></p>
 <p><strong>欢迎大家来即刻找我玩</strong></p>
 <p><img src="http://ww1.sinaimg.cn/large/0077b3hzgy1fuxyhhcjfcj309e0goaaw.jpg" alt="jike"></p>
-</div></article></div></main><footer><div class="paginator"><a href="/2018/08/09/夜间模式实践探索——源码分析/" class="prev">PREV</a><a href="/2018/06/19/夜间模式实践探索——开篇/" class="next">NEXT</a></div><div class="copyright"><p>© 2017 - 2018 <a href="http://yoursite.com">文钦</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
+</div></article></div></main><footer><div class="paginator"><a href="/2018/08/09/夜间模式实践探索——源码分析/" class="prev">上一篇</a><a href="/2018/06/19/夜间模式实践探索——开篇/" class="next">下一篇</a></div><div class="copyright"><p>© 2017 - 2018 <a href="http://yoursite.com">文钦</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
