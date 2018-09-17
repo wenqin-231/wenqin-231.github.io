@@ -12,12 +12,12 @@
 <p>然后在 <code>app:buttonTint</code> 中把 thint.xml 设置进去就可以啦~</p>
 </li>
 <li><p><strong>夜间模式下 TabLayout 多状态的 Text 颜色异常</strong></p>
-<p>对于字体颜色，默认的做法是通过 getResourceId 来获取资源 Id，但像 TabLayout 这种<strong>多状态</strong>的颜色值在 TextView 中是使用 <code>ColorStateList</code> 来维护多种状态色值~ </p>
-<p>但是！不能使用 <code>TypedArray # getColorStateList</code>，因为拿到的 ColorStateList 是当前模式下分配好的颜色值，不会随着模式的改变而改变😑， 还是得根据 <code>TypedArray # getResourceId</code> 和 <code>getResources # getColorStateList</code> 来获得相应的 ColorStateList</p>
+<p>对于字体颜色，默认的做法是通过 getResourceId 来获取资源 Id，但像 TabLayout 这种<strong>多状态</strong>的颜色值在 TextView 中是使用 <code>ColorStateList</code> 来维护的~ </p>
+<p>⚠️但是！不能使用 <code>TypedArray # getColorStateList</code>，因为拿到的 ColorStateList 是当前模式下已经获取好的颜色值，不会随着模式的改变而改变😑， 还是得根据 <code>TypedArray # getResourceId</code> 和 <code>getResources # getColorStateList</code> 来获得相应的 ColorStateList</p>
 <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">setColorStateList</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (targetView <span class="keyword">is</span> TextView) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ContextCompat.getColorStateList(context, textColorId)?.also &#123;</span><br><span class="line">                targetView.setTextColor(it) </span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e: Exception) &#123;</span><br><span class="line">            e.printStackTrace()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p><strong>setNightCallback 这个方法好麻烦哦，能不能反向查色值</strong></p>
-<p>如果遇到了在代码里动态设置颜色值，我就没法获取到它的 rescourceId，所以只能使用 <code>setNightCallback</code> 的回调中再渲染一次。注意👻！这个规则只需要应用于在 MainActivity 中的 View，因为切换夜间模式它要重新渲染，其它情况的 View 可以为所欲为，无须在意这个~</p>
+<p>如果遇到了在代码里动态设置颜色值，我就没法获取到它的 rescourceId，所以只能使用 <code>setNightCallback</code> 的回调中再渲染一次。注意❗️这个规则只需要应用于在 MainActivity 中的 View，因为切换夜间模式它要重新渲染，其它情况的 View 可以为所欲为，无须在意这个~</p>
 <p>针对这种情况，不能通过颜色值反查 rescourceId 的原因是因为日间模式下同一种颜色可能对应 n 个夜间模式的色值，反查会让规则变得复杂且麻烦……</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--color in day mode--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">color</span> <span class="attr">name</span>=<span class="string">"white_background"</span>&gt;</span>#ffffff<span class="tag">&lt;/<span class="name">color</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">color</span> <span class="attr">name</span>=<span class="string">"white_text"</span>&gt;</span>#0ffffff<span class="tag">&lt;/<span class="name">color</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--color in nihgt mode--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">color</span> <span class="attr">name</span>=<span class="string">"white_background"</span>&gt;</span>#000000<span class="tag">&lt;/<span class="name">color</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">color</span> <span class="attr">name</span>=<span class="string">"white_text"</span>&gt;</span>#000009<span class="tag">&lt;/<span class="name">color</span>&gt;</span></span><br></pre></td></tr></table></figure>
 </li>
@@ -26,10 +26,10 @@
 <p>如果有更好的方案，十分欢迎与我讨论~</p>
 </li>
 <li><p><strong>夜间模式下图片加载大小不对</strong></p>
-<p>图片资源不能全部放在 drawable-night 中，它是对应 drawable；如果是图片资源有对应关系，应该看它原先的位置，把资源文件放在相应的 <code>drawable-night-[dpi]</code> 中</p>
+<p>图片资源不能全部放在 <code>drawable-night</code> 中，它是对应日间模式 drawable 的资源；如果是图片资源有对应关系，应该看它原先的位置，把资源文件放在相应的 <code>drawable-night-[dpi]</code> 中</p>
 </li>
 <li><p><strong>Header 和 Footer 在不可见时，切换夜间模式后没有生效</strong></p>
-<p>因为 Header 和 Footer 在初始化的时候被添加进去的，所以在切换夜间模式的时候，如果它们不可见，就不在 resetView 的重渲染范围内。</p>
+<p>因为 Header 和 Footer 在初始化的时候被添加进去的，所以在切换夜间模式的时候，如果它们不可见，就不在 resetView 的重渲染范围内😔</p>
 <p>解决的方法是在切换夜间模式的时候对 Header 或者 Footer 调用 resetView 重渲染它们的颜色</p>
 </li>
 <li><p><strong>夜间模式下 Dialog 不生效</strong></p>
@@ -40,7 +40,7 @@
 </li>
 <li><p><strong>使用 WebView 夜间模式异常</strong></p>
 <p>因为 WebView 第一次初始化的时候会 reset UI mode, 导致该页面下在 WebView 初始化后渲染的 View 都会恢复日间模式，详见 <a href="https://groups.google.com/forum/#!msg/google-admob-ads-sdk/OZzHq_-wAFY/K50jClZcBAAJ" target="_blank" rel="noopener">Google 的讨论</a></p>
-<p>这个问题解决起来也比较容易，在 WebView 初始化后调用 <code>setLocalNightMode</code> 恢复夜间模式，让它之后的 View 按照夜间模式的规则渲染即可。不过，使用这套规则的 Activity 都要添加  <code>android:configChanges=&quot;uiMode&quot;</code></p>
+<p>知道了原因后，这个问题解决起来也比较容易，在 WebView 初始化后调用 <code>setLocalNightMode</code> 恢复夜间模式，让它之后的 View 按照夜间模式的规则渲染即可。不过，使用这套规则的 Activity 都要添加  <code>android:configChanges=&quot;uiMode&quot;</code></p>
 </li>
 <li><p><strong>Web 页面没有夜间模式呀</strong></p>
 <p>首先，如果产品需要改前端 Web 页面颜色，那么需要和前端同学一起配合，把你当前的状态告诉他。如果这块前端同学还没准备好，那可以使用在 WebView 中重写 onDraw 的方法，调用 canvas # drawColor 给 WebView 添加一个遮罩</p>
@@ -59,6 +59,6 @@
 <p><em>参考资料</em></p>
 <p><a href="https://medium.com/androiddevelopers/appcompat-v23-2-daynight-d10f90c83e94" target="_blank" rel="noopener">AppCompat — DayNight</a></p>
 <p><a href="https://www.jianshu.com/p/3b55e84742e5" target="_blank" rel="noopener">知乎和简书的夜间模式实现套路</a></p>
-<p><strong>欢迎大家来即刻找我玩</strong></p>
-<p><img src="http://ww1.sinaimg.cn/large/0077b3hzgy1fuxyhhcjfcj309e0goaaw.jpg" alt="jike"></p>
+<p><strong>欢迎大家来<a href="http://okjike.com/careers" target="_blank" rel="noopener">即刻</a>找我玩</strong>❤️</p>
+<p><img src="https://ws1.sinaimg.cn/large/0077b3hzgy1fvd1qx1lgaj30dc0megmh.jpg" alt="jike"></p>
 </div></article></div></main><footer><div class="paginator"><a href="/2018/08/09/夜间模式实践探索——源码分析/" class="next">NEXT</a></div><div class="copyright"><p>© 2017 - 2018 <a href="http://yoursite.com">文钦</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
