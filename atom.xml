@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-04-16T07:04:00.833Z</updated>
+  <updated>2020-12-29T04:29:08.359Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,27 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Glide 缓存机制</title>
+    <link href="http://yoursite.com/2020/04/13/Glide%20%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/"/>
+    <id>http://yoursite.com/2020/04/13/Glide 缓存机制/</id>
+    <published>2020-04-13T12:42:38.207Z</published>
+    <updated>2020-12-29T04:29:08.359Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>Glide</strong> 是常用的图片加载引擎，在很多应用中被广泛使用。他的缓存机制经过精心设计，才能在复杂的商业项目中游刃有余。因此，就让我们通过源码一起来研究一下它的缓存机制。</p><p>Glide 的缓存机制包括了内存缓存和磁盘缓存，其中内存缓存包括 <code>ActiveResources</code> 和 <code>MemoryCache</code>，磁盘缓存包括了 <code>Resource</code> 和 <code>Data</code>。</p><p>Glide 的缓存是在 GlideBuilder 中创建的，在 Engine 中使用。</p><p><img src="https://i.loli.net/2020/12/29/GbnZlT7aFBev2Lr.png" alt="cache2.png"></p><a id="more"></a><h3 id="内存缓存"><a href="#内存缓存" class="headerlink" title="内存缓存"></a>内存缓存</h3><p>其中内存缓存在 Engine#load 中方法中调用 <code>loadFromMemory</code> 中，<code>loadFromMemory</code> 中会先检查执行 <code>loadFromActiveResources</code>，如果不成功再执行 <code>loadFromCache</code>。如果这两个没有缓存可运行的话，再异步从磁盘中尝试获取资源</p><p>通过上面的分析可知，在没有禁用内存缓存的情况下，Glide 的内存缓存是先去获取 <code>ActiveResources</code> ，它是指另一个 View 正在展示这张图片，它会在 <code>onResoureReady</code> 和 <code>loadFromCache</code> 中被激活，在 <code>onResourceRelease</code> 中被消活。本身使用了弱引用，GC 后就会被回收♻️。</p><p>如果 <code>ActiveResources</code> 中没有可用的资源时（被消活或者被回收）则去获取 <code>MemoryCache</code>。这个缓存是在 GlideBuilder 中创建的，默认是 <code>LruResourceCache</code>，开发者可基于 MemoryCache 接口自定义自己的内存缓存。</p><p><code>LruResourceCache</code> 是 LruCache 的子类，LruCache 内部通过 LinkHashMap 实现 LRU 算法，让使用率高的资源在靠前的位置。而 <code>LruResourceCache</code> 主要是维护了一个 <code>ResourceRemovedListener</code> 和 <code>trimMemory</code>，前者用来监听资源移除，后者用来实现根据等级来清空或者回收内存空间。</p><p>总的来说，内存缓存包含了一个正在活跃的 <code>ActiveResources</code> 和存在于内存的 <code>MemoryCache</code> ，前者的优先级高于后者，两者共同形成 Glide 的内存缓存。</p><h3 id="磁盘缓存"><a href="#磁盘缓存" class="headerlink" title="磁盘缓存"></a>磁盘缓存</h3><p>DecodeJob 实现了 Runnable，run 方法的核心是 <code>runWrapped</code>，而真正执行任务就是<code>runGenerators</code>，这里会根据当前的 stage 使用对应的 DataFetcherGenerator，Glide 提供了三种数据源生产器——ResourceCacheGenerator、DataCacheGenerator 和 SourceGenerator，他们就在 startNext 中启动对应的 fetcher 来加载数据。</p><p>回到磁盘缓存上来讲，Glide 是通过 <code>getNextStage</code> 的递归方法确定优先级，会依次考虑 Resource、Data 和 Source。Resource 是指被转码、转换过的图片资源；Data 是指构建图片的原始数据，Source 则是通过网络请求。</p><p>最后，磁盘缓存的实现是 <code>DiskLruCache</code>, 内部也是用 HashLinkMap 来实现 LRU 算法。</p><p><img src="https://i.loli.net/2020/12/29/XW6CvrkypKjYDhF.png" alt="image-20200727111309908.png"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;Glide&lt;/strong&gt; 是常用的图片加载引擎，在很多应用中被广泛使用。他的缓存机制经过精心设计，才能在复杂的商业项目中游刃有余。因此，就让我们通过源码一起来研究一下它的缓存机制。&lt;/p&gt;
+&lt;p&gt;Glide 的缓存机制包括了内存缓存和磁盘缓存，其中内存缓存包括 &lt;code&gt;ActiveResources&lt;/code&gt; 和 &lt;code&gt;MemoryCache&lt;/code&gt;，磁盘缓存包括了 &lt;code&gt;Resource&lt;/code&gt; 和 &lt;code&gt;Data&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;Glide 的缓存是在 GlideBuilder 中创建的，在 Engine 中使用。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://i.loli.net/2020/12/29/GbnZlT7aFBev2Lr.png&quot; alt=&quot;cache2.png&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>关于 ViewBinding 的二三事</title>
